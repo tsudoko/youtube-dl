@@ -107,7 +107,7 @@ class NiconicoIE(InfoExtractor):
             'https://secure.nicovideo.jp/secure/login', login_data)
         login_results = self._download_webpage(
             request, None, note='Logging in', errnote='Unable to log in')
-        if re.search(r'(?i)<h1 class="mb8p4">Log in error</h1>', login_results) is not None:
+        if re.search(r'(?i)<p class="notice__text">Email address or password incorrect.</p>', login_results) is not None:
             self._downloader.report_warning('unable to log in: bad username or password')
             return False
         return True

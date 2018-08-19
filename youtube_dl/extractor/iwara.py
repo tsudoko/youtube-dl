@@ -1,13 +1,20 @@
 # coding: utf-8
 from __future__ import unicode_literals
 
+import re
+
 from .common import InfoExtractor
-from ..compat import compat_urllib_parse_urlparse
+from ..compat import (
+    compat_urllib_parse,
+    compat_urllib_parse_unquote,
+    compat_urllib_parse_urlparse,
+)
 from ..utils import (
     int_or_none,
     mimetype2ext,
     remove_end,
     url_or_none,
+    unescapeHTML,
 )
 
 
@@ -21,6 +28,10 @@ class IwaraIE(InfoExtractor):
             'ext': 'mp4',
             'title': '【MMD R-18】ガールフレンド carry_me_off',
             'age_limit': 18,
+            'uploader': 'Reimu丨Action',
+            'uploader_id': 'reimu丨action',
+            'uploader_url': 'https://ecchi.iwara.tv/users/reimu%E4%B8%A8action',
+            'upload_date': '20150828',
         },
     }, {
         'url': 'http://ecchi.iwara.tv/videos/Vb4yf2yZspkzkBO',
@@ -72,6 +83,19 @@ class IwaraIE(InfoExtractor):
         title = remove_end(self._html_search_regex(
             r'<title>([^<]+)</title>', webpage, 'title'), ' | Iwara')
 
+        uploader = None
+        uploader_id = None
+        uploader_url = None
+        upload_date = None
+        mobj = re.search(r'作成者:<a[^>]+href=[\'"](?P<uploader_url>/users/(?P<uploader_id>[^\'"]*))[\'"][^>]*>(?P<uploader>[^>]*)</a>\s*作成日:(?P<year>[0-9]{4})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})', webpage)
+        if mobj is not None:
+                uploader = unescapeHTML(mobj.group('uploader'))
+                uploader_id = compat_urllib_parse_unquote(unescapeHTML(mobj.group('uploader_id')))
+                uploader_url = compat_urllib_parse.urljoin(urlh.geturl(), unescapeHTML(mobj.group('uploader_url')))
+                upload_date = mobj.group('year') + mobj.group('month') + mobj.group('day')
+        else:
+                self._downloader.report_warning('unable to extract uploader info and upload date')
+
         formats = []
         for a_format in video_data:
             format_uri = url_or_none(a_format.get('uri'))
@@ -96,4 +120,8 @@ class IwaraIE(InfoExtractor):
             'title': title,
             'age_limit': age_limit,
             'formats': formats,
+            'uploader': uploader,
+            'uploader_id': uploader_id,
+            'uploader_url': uploader_url,
+            'upload_date': upload_date,
         }

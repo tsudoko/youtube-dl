@@ -32,6 +32,7 @@ class IwaraIE(InfoExtractor):
             'uploader_id': 'reimu丨action',
             'uploader_url': 'https://ecchi.iwara.tv/users/reimu%E4%B8%A8action',
             'upload_date': '20150828',
+            'thumbnail': 'https://i.iwara.tv/sites/default/files/videos/thumbnails/7951/thumbnail-7951_0001.png',
         },
     }, {
         'url': 'http://ecchi.iwara.tv/videos/Vb4yf2yZspkzkBO',
@@ -96,6 +97,7 @@ class IwaraIE(InfoExtractor):
         else:
                 self._downloader.report_warning('unable to extract uploader info and upload date')
 
+        thumbnail = self._proto_relative_url(self._html_search_regex(r'<video[^>]+id=[\'"]video-player[\'"][^>]+poster=[\'"](?P<thumbnail>[^\'"]*)[\'"]', webpage, 'thumbnail', fatal=False), 'https:')
         formats = []
         for a_format in video_data:
             format_uri = url_or_none(a_format.get('uri'))
@@ -124,4 +126,5 @@ class IwaraIE(InfoExtractor):
             'uploader_id': uploader_id,
             'uploader_url': uploader_url,
             'upload_date': upload_date,
+            'thumbnail': thumbnail,
         }

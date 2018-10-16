@@ -2641,8 +2641,10 @@ class InfoExtractor(object):
             source_type = source.get('type') or ''
             ext = mimetype2ext(source_type) or determine_ext(source_url)
             if source_type == 'hls' or ext == 'm3u8':
+                r = sanitized_Request(source_url)
+                r.add_header("Referer", base_url)
                 formats.extend(self._extract_m3u8_formats(
-                    source_url, video_id, 'mp4', entry_protocol='m3u8_native',
+                    r, video_id, 'mp4', entry_protocol='m3u8_native',
                     m3u8_id=m3u8_id, fatal=False))
             elif source_type == 'dash' or ext == 'mpd':
                 formats.extend(self._extract_mpd_formats(

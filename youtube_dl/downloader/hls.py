@@ -59,7 +59,10 @@ class HlsFD(FragmentFD):
         man_url = info_dict['url']
         self.to_screen('[%s] Downloading m3u8 manifest' % self.FD_NAME)
 
-        urlh = self.ydl.urlopen(self._prepare_url(info_dict, man_url))
+        r = self._prepare_url(info_dict, man_url)
+        #if "webpage_url" in info_dict:
+        r.add_header("Referer", info_dict['webpage_url'])
+        urlh = self.ydl.urlopen(r)
         man_url = urlh.geturl()
         s = urlh.read().decode('utf-8', 'ignore')
 
@@ -136,6 +139,8 @@ class HlsFD(FragmentFD):
                         frag_url = update_url_query(frag_url, extra_query)
                     count = 0
                     headers = info_dict.get('http_headers', {})
+                    if "Referer" not in headers and "webpage_url" in info_dict:
+                        headers['Referer'] = info_dict['webpage_url']
                     if byte_range:
                         headers['Range'] = 'bytes=%d-%d' % (byte_range['start'], byte_range['end'])
                     while count <= fragment_retries:
